@@ -35,30 +35,35 @@ class CardProvider with ChangeNotifier {
             name: 'Banka Kartı',
             password: 'pwd_bank_123',
             description: 'Maaş hesabım',
+            colorCode: 0xFF1976D2, // Blue
           ),
           CardItem(
             id: 'mock_2',
             name: 'Spor Salonu',
             password: 'pwd_gym_456',
             description: 'Üyelik No: 5123',
+            colorCode: 0xFFE53935, // Red
           ),
           CardItem(
             id: 'mock_3',
             name: 'Ofis Girişi',
             password: 'pwd_office_789',
             description: 'Plaza 4. Kat',
+            colorCode: 0xFF00897B, // Teal
           ),
           CardItem(
             id: 'mock_4',
             name: 'Okul Kimliği',
             password: 'pwd_school_321',
             description: 'Öğrenci İşleri',
+            colorCode: 0xFF8E24AA, // Purple
           ),
           CardItem(
             id: 'mock_5',
             name: 'Netflix',
             password: 'pwd_netflix_654',
             description: 'Ortak Hesap',
+            colorCode: 0xFFF4511E, // Deep Orange
           ),
         ];
 
@@ -81,12 +86,14 @@ class CardProvider with ChangeNotifier {
     String name,
     String password, {
     String? description,
+    int? colorCode,
   }) async {
     final newItem = CardItem(
       id: id,
       name: name,
       password: password,
       description: description,
+      colorCode: colorCode,
     );
     await _storageService.saveCard(newItem);
     await loadCards();

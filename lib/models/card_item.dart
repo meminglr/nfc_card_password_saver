@@ -3,12 +3,14 @@ class CardItem {
   final String name;
   final String password;
   final String? description;
+  final int? colorCode;
 
   CardItem({
     required this.id,
     required this.name,
     required this.password,
     this.description,
+    this.colorCode,
   });
 
   Map<String, dynamic> toJson() => {
@@ -16,6 +18,7 @@ class CardItem {
     'name': name,
     'password': password,
     'description': description,
+    'colorCode': colorCode,
   };
 
   factory CardItem.fromJson(Map<String, dynamic> json) => CardItem(
@@ -23,5 +26,6 @@ class CardItem {
     name: json['name'],
     password: json['password'],
     description: json['description'],
+    colorCode: json['colorCode'],
   );
 }

@@ -8,6 +8,7 @@ import '../models/card_item.dart';
 import 'read_nfc_screen.dart';
 import 'password_detail_screen.dart';
 import 'settings_screen.dart';
+import 'save_password_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -121,10 +122,15 @@ class HomeScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(isCardView ? 24 : 16),
                       gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.secondary,
-                        ],
+                        colors: card.colorCode != null
+                            ? [
+                                Color(card.colorCode!),
+                                Color(card.colorCode!).withValues(alpha: 0.6),
+                              ]
+                            : [
+                                Theme.of(context).colorScheme.primary,
+                                Theme.of(context).colorScheme.secondary,
+                              ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -252,6 +258,18 @@ class HomeScreen extends StatelessWidget {
         trailing: PullDownButton(
           itemBuilder: (context) => [
             PullDownMenuItem(
+              title: 'Düzenle',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SavePasswordScreen(existingCard: card),
+                  ),
+                );
+              },
+              icon: Icons.edit_outlined,
+            ),
+            PullDownMenuItem(
               title: 'Sil',
               onTap: () => _showDeleteConfirm(context, provider, card.id),
               icon: Icons.delete_outline,
@@ -326,6 +344,19 @@ class HomeScreen extends StatelessWidget {
                   ),
                   PullDownButton(
                     itemBuilder: (context) => [
+                      PullDownMenuItem(
+                        title: 'Düzenle',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  SavePasswordScreen(existingCard: card),
+                            ),
+                          );
+                        },
+                        icon: Icons.edit_outlined,
+                      ),
                       PullDownMenuItem(
                         title: 'Sil',
                         onTap: () =>

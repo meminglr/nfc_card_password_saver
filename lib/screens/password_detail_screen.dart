@@ -98,9 +98,11 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
                   borderRadius: BorderRadius.circular(40),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.3),
+                      color:
+                          (card.colorCode != null
+                                  ? Color(card.colorCode!)
+                                  : Theme.of(context).colorScheme.primary)
+                              .withOpacity(0.3),
                       blurRadius: 40,
                       spreadRadius: -10,
                     ),
@@ -113,7 +115,9 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
                       size: 80,
                       color: _isAuthenticated
                           ? Colors.greenAccent
-                          : Theme.of(context).colorScheme.primary,
+                          : (card.colorCode != null
+                                ? Color(card.colorCode!)
+                                : Theme.of(context).colorScheme.primary),
                     ),
                     const SizedBox(height: 24),
                     Text(
