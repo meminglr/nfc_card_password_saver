@@ -26,6 +26,31 @@ class CardProvider with ChangeNotifier {
 
     try {
       _cards = await _storageService.getCards();
+
+      // Tasarım geliştirmeleri için mock data eklenmesi
+      if (_cards.isEmpty) {
+        final mockCards = [
+          CardItem(id: 'mock_1', name: 'Banka Kartı', password: 'pwd_bank_123'),
+          CardItem(id: 'mock_2', name: 'Spor Salonu', password: 'pwd_gym_456'),
+          CardItem(
+            id: 'mock_3',
+            name: 'Ofis Girişi',
+            password: 'pwd_office_789',
+          ),
+          CardItem(
+            id: 'mock_4',
+            name: 'Okul Kimliği',
+            password: 'pwd_school_321',
+          ),
+          CardItem(id: 'mock_5', name: 'Netflix', password: 'pwd_netflix_654'),
+        ];
+
+        for (var card in mockCards) {
+          await _storageService.saveCard(card);
+        }
+
+        _cards = mockCards;
+      }
     } catch (e) {
       _error = "Kartlar yüklenemedi: $e";
     }

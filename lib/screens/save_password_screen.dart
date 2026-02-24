@@ -30,10 +30,12 @@ class _SavePasswordScreenState extends State<SavePasswordScreen> {
         if (mounted) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text(
                 'Kart başarıyla kaydedildi!',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
               ),
             ),
           );
@@ -86,9 +88,13 @@ class _SavePasswordScreenState extends State<SavePasswordScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Okunan Kart ID:',
-                            style: TextStyle(color: Colors.white70),
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.7),
+                            ),
                           ),
                           Text(
                             widget.nfcId,
@@ -106,10 +112,17 @@ class _SavePasswordScreenState extends State<SavePasswordScreen> {
               const SizedBox(height: 32),
               TextFormField(
                 controller: _nameController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                decoration: InputDecoration(
                   labelText: 'Kart Adı (örn: Kasa Anahtarı)',
-                  prefixIcon: Icon(Icons.label_outline, color: Colors.white70),
+                  prefixIcon: Icon(
+                    Icons.label_outline,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.7),
+                  ),
                 ),
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Lütfen bir ad girin' : null,
@@ -118,10 +131,17 @@ class _SavePasswordScreenState extends State<SavePasswordScreen> {
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                decoration: InputDecoration(
                   labelText: 'Kart Şifresi / Eşleşen Parola',
-                  prefixIcon: Icon(Icons.lock_outline, color: Colors.white70),
+                  prefixIcon: Icon(
+                    Icons.lock_outline,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.7),
+                  ),
                 ),
                 validator: (val) => val == null || val.isEmpty
                     ? 'Lütfen bir şifre girin'
@@ -131,7 +151,9 @@ class _SavePasswordScreenState extends State<SavePasswordScreen> {
               ElevatedButton(
                 onPressed: _isSaving ? null : _save,
                 child: _isSaving
-                    ? const CircularProgressIndicator(color: Colors.white)
+                    ? CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      )
                     : const Text(
                         'Kaydet',
                         style: TextStyle(

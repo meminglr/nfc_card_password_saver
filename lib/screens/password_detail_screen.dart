@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/card_provider.dart';
 import '../services/biometric_service.dart';
+import '../providers/settings_provider.dart';
 
 class PasswordDetailScreen extends StatefulWidget {
   final String cardId;
@@ -22,7 +23,21 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _authenticate();
+    _checkSettingsAndAuthenticate();
+  }
+
+  Future<void> _checkSettingsAndAuthenticate() async {
+    final settingsProvider = context.read<SettingsProvider>();
+    if (!settingsProvider.requireBiometrics) {
+      if (mounted) {
+        setState(() {
+          _isAuthenticated = true;
+          _isAuthenticating = false;
+        });
+      }
+      return;
+    }
+    await _authenticate();
   }
 
   Future<void> _authenticate() async {
@@ -103,8 +118,10 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
                     const SizedBox(height: 24),
                     Text(
                       _isAuthenticated ? 'Gizli Şifreniz' : 'Şifre Kilitli',
-                      style: const TextStyle(
-                        color: Colors.white70,
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.7),
                         fontSize: 16,
                       ),
                     ),
@@ -132,11 +149,11 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
                     else if (_isAuthenticated)
                       SelectableText(
                         card.password,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 3,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                   ],
@@ -149,9 +166,11 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
                     Clipboard.setData(ClipboardData(text: card.password));
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: const Text(
+                        content: Text(
                           'Şifre kopyalandı!',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
                         ),
                         backgroundColor: Theme.of(
                           context,
@@ -172,9 +191,14 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text(
+                child: Text(
                   'Geri Dön',
-                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.7),
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ],
