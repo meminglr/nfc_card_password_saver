@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_down_button/pull_down_button.dart';
+
 import '../providers/card_provider.dart';
 import '../providers/settings_provider.dart';
 import '../models/card_item.dart';
@@ -116,16 +118,13 @@ class HomeScreen extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 400),
                     curve: Curves.easeInOutCubic,
-                    height: isCardView ? 200 : 88,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(isCardView ? 24 : 16),
                       gradient: LinearGradient(
-                        colors: isDark
-                            ? [const Color(0xFF2A2D3C), const Color(0xFF1E1E2C)]
-                            : [
-                                Theme.of(context).colorScheme.primary,
-                                Theme.of(context).colorScheme.secondary,
-                              ],
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.secondary,
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -141,11 +140,59 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: isCardView
-                          ? _buildPhysicalCard(context, card, isDark, provider)
-                          : _buildListTile(context, card, isDark, provider),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(isCardView ? 24 : 16),
+                      child: AnimatedCrossFade(
+                        duration: const Duration(milliseconds: 300),
+                        firstCurve: Curves.easeOutCubic,
+                        secondCurve: Curves.easeOutCubic,
+                        sizeCurve: Curves.easeInOutCubic,
+                        crossFadeState: isCardView
+                            ? CrossFadeState.showFirst
+                            : CrossFadeState.showSecond,
+                        layoutBuilder:
+                            (
+                              topChild,
+                              topChildKey,
+                              bottomChild,
+                              bottomChildKey,
+                            ) {
+                              return Stack(
+                                clipBehavior: Clip.none,
+                                alignment: Alignment.center,
+                                children: [
+                                  Positioned(
+                                    key: bottomChildKey,
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: bottomChild,
+                                  ),
+                                  Positioned(key: topChildKey, child: topChild),
+                                ],
+                              );
+                            },
+                        firstChild: SizedBox(
+                          key: const ValueKey('card_view'),
+                          height: 200,
+                          child: _buildPhysicalCard(
+                            context,
+                            card,
+                            isDark,
+                            provider,
+                          ),
+                        ),
+                        secondChild: SizedBox(
+                          key: const ValueKey('list_view'),
+                          height: 88,
+                          child: _buildListTile(
+                            context,
+                            card,
+                            isDark,
+                            provider,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -193,21 +240,28 @@ class HomeScreen extends StatelessWidget {
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4.0),
           child: Text(
-            '•••• •••• ••••',
+            card.description ?? 'Açıklama yok',
             style: TextStyle(
               color: Colors.white.withOpacity(0.7),
-              letterSpacing: 2,
+              fontStyle: card.description == null
+                  ? FontStyle.italic
+                  : FontStyle.normal,
             ),
           ),
         ),
-        trailing: IconButton(
-          icon: Icon(
-            Icons.delete_outline,
-            color: Colors.white.withOpacity(0.5),
+        trailing: PullDownButton(
+          itemBuilder: (context) => [
+            PullDownMenuItem(
+              title: 'Sil',
+              onTap: () => _showDeleteConfirm(context, provider, card.id),
+              icon: Icons.delete_outline,
+              isDestructive: true,
+            ),
+          ],
+          buttonBuilder: (context, showMenu) => IconButton(
+            icon: Icon(Icons.more_vert, color: Colors.white.withOpacity(0.5)),
+            onPressed: showMenu,
           ),
-          onPressed: () {
-            _showDeleteConfirm(context, provider, card.id);
-          },
         ),
       ),
     );
@@ -244,11 +298,14 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '•••• •••• •••• ••••',
+                card.description?.toUpperCase() ?? 'AÇIKLAMA YOK',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.7),
-                  fontSize: 22,
-                  letterSpacing: 4,
+                  fontSize: 16,
+                  letterSpacing: 2,
+                  fontStyle: card.description == null
+                      ? FontStyle.italic
+                      : FontStyle.normal,
                 ),
               ),
               const SizedBox(height: 12),
@@ -267,16 +324,25 @@ class HomeScreen extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.delete_outline,
-                      color: Colors.white.withOpacity(0.5),
+                  PullDownButton(
+                    itemBuilder: (context) => [
+                      PullDownMenuItem(
+                        title: 'Sil',
+                        onTap: () =>
+                            _showDeleteConfirm(context, provider, card.id),
+                        icon: Icons.delete_outline,
+                        isDestructive: true,
+                      ),
+                    ],
+                    buttonBuilder: (context, showMenu) => IconButton(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: Colors.white.withOpacity(0.5),
+                      ),
+                      onPressed: showMenu,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
-                    onPressed: () {
-                      _showDeleteConfirm(context, provider, card.id);
-                    },
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
                   ),
                 ],
               ),

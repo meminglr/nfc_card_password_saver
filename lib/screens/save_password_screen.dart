@@ -14,6 +14,7 @@ class SavePasswordScreen extends StatefulWidget {
 class _SavePasswordScreenState extends State<SavePasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isSaving = false;
 
@@ -26,6 +27,9 @@ class _SavePasswordScreenState extends State<SavePasswordScreen> {
           widget.nfcId,
           _nameController.text.trim(),
           _passwordController.text.trim(),
+          description: _descriptionController.text.trim().isEmpty
+              ? null
+              : _descriptionController.text.trim(),
         );
         if (mounted) {
           Navigator.pop(context);
@@ -51,6 +55,7 @@ class _SavePasswordScreenState extends State<SavePasswordScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _descriptionController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -126,6 +131,23 @@ class _SavePasswordScreenState extends State<SavePasswordScreen> {
                 ),
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Lütfen bir ad girin' : null,
+              ),
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: _descriptionController,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Kısa Açıklama (Opsiyonel)',
+                  prefixIcon: Icon(
+                    Icons.description_outlined,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                ),
+                maxLength: 40,
               ),
               const SizedBox(height: 24),
               TextFormField(

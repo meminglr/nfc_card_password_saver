@@ -30,19 +30,36 @@ class CardProvider with ChangeNotifier {
       // Tasarım geliştirmeleri için mock data eklenmesi
       if (_cards.isEmpty) {
         final mockCards = [
-          CardItem(id: 'mock_1', name: 'Banka Kartı', password: 'pwd_bank_123'),
-          CardItem(id: 'mock_2', name: 'Spor Salonu', password: 'pwd_gym_456'),
+          CardItem(
+            id: 'mock_1',
+            name: 'Banka Kartı',
+            password: 'pwd_bank_123',
+            description: 'Maaş hesabım',
+          ),
+          CardItem(
+            id: 'mock_2',
+            name: 'Spor Salonu',
+            password: 'pwd_gym_456',
+            description: 'Üyelik No: 5123',
+          ),
           CardItem(
             id: 'mock_3',
             name: 'Ofis Girişi',
             password: 'pwd_office_789',
+            description: 'Plaza 4. Kat',
           ),
           CardItem(
             id: 'mock_4',
             name: 'Okul Kimliği',
             password: 'pwd_school_321',
+            description: 'Öğrenci İşleri',
           ),
-          CardItem(id: 'mock_5', name: 'Netflix', password: 'pwd_netflix_654'),
+          CardItem(
+            id: 'mock_5',
+            name: 'Netflix',
+            password: 'pwd_netflix_654',
+            description: 'Ortak Hesap',
+          ),
         ];
 
         for (var card in mockCards) {
@@ -59,8 +76,18 @@ class CardProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveCard(String id, String name, String password) async {
-    final newItem = CardItem(id: id, name: name, password: password);
+  Future<void> saveCard(
+    String id,
+    String name,
+    String password, {
+    String? description,
+  }) async {
+    final newItem = CardItem(
+      id: id,
+      name: name,
+      password: password,
+      description: description,
+    );
     await _storageService.saveCard(newItem);
     await loadCards();
   }
