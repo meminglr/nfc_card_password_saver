@@ -19,36 +19,45 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               _buildSectionHeader(context, "Kimlik Doğrulama"),
-              SwitchListTile(
-                title: const Text('NFC Kart Okutma Zorunluluğu'),
-                subtitle: const Text(
-                  'Kart şifrelerini görebilmek için fiziksel NFC kartını telefona okutmanız gerekir.',
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        title: const Text('NFC Kart Okutma Zorunluluğu'),
+                        subtitle: const Text(
+                          'Kart şifrelerini görebilmek için fiziksel NFC kartını telefona okutmanız gerekir.',
+                        ),
+                        value: provider.requireNfc,
+                        onChanged: (val) => provider.setRequireNfc(val),
+                        activeColor: Theme.of(context).colorScheme.secondary,
+                      ),
+                      const Divider(height: 32),
+                      SwitchListTile(
+                        title: const Text('Biyometrik Doğrulama Zorunluluğu'),
+                        subtitle: const Text(
+                          'Şifreyi ekranda görebilmek için Face ID, Touch ID veya cihaz şifresi gerekir.',
+                        ),
+                        value: provider.requireBiometrics,
+                        onChanged: (val) => provider.setRequireBiometrics(val),
+                        activeColor: Theme.of(context).colorScheme.secondary,
+                      ),
+                      const Divider(height: 32),
+                      SwitchListTile(
+                        title: const Text('Karanlık Tema'),
+                        subtitle: const Text(
+                          'Uygulamanın genel görünüm arayüzünü değiştirir.',
+                        ),
+                        value: provider.isDarkMode,
+                        onChanged: (val) => provider.setIsDarkMode(val),
+                        activeColor: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ],
+                  ),
                 ),
-                value: provider.requireNfc,
-                onChanged: (val) => provider.setRequireNfc(val),
-                activeColor: Theme.of(context).colorScheme.secondary,
               ),
-              const Divider(height: 32),
-              SwitchListTile(
-                title: const Text('Biyometrik Doğrulama Zorunluluğu'),
-                subtitle: const Text(
-                  'Şifreyi ekranda görebilmek için Face ID, Touch ID veya cihaz şifresi gerekir.',
-                ),
-                value: provider.requireBiometrics,
-                onChanged: (val) => provider.setRequireBiometrics(val),
-                activeColor: Theme.of(context).colorScheme.secondary,
-              ),
-              const Divider(height: 32),
-              SwitchListTile(
-                title: const Text('Karanlık Tema'),
-                subtitle: const Text(
-                  'Uygulamanın genel görünüm arayüzünü değiştirir.',
-                ),
-                value: provider.isDarkMode,
-                onChanged: (val) => provider.setIsDarkMode(val),
-                activeColor: Theme.of(context).colorScheme.secondary,
-              ),
-              const Divider(height: 32),
+
               _buildInfoFooter(context),
             ],
           );
@@ -60,12 +69,14 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16, top: 8),
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.secondary,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.2,
+      child: Center(
+        child: Text(
+          title.toUpperCase(),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.secondary,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
         ),
       ),
     );
