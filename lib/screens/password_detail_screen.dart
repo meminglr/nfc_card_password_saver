@@ -16,35 +16,72 @@ class PasswordDetailScreen extends StatefulWidget {
   State<PasswordDetailScreen> createState() => _PasswordDetailScreenState();
 }
 
-class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
+class _PasswordDetailScreenState extends State<PasswordDetailScreen>
+    with SingleTickerProviderStateMixin {
   final BiometricService _biometricService = BiometricService();
-  bool _isAuthenticated = false;
-  bool _isAuthenticating = true;
+  bool _isAuthenticated = false; // true if ALL required auth passes
+  bool _isBiometricAuthenticating = false;
+  bool _isNfcAuthenticating = false;
   String? _authError;
+  late final CardProvider _cardProvider;
+
+  late final AnimationController _pulseController;
+  late final Animation<double> _pulseAnimation;
 
   @override
   void initState() {
     super.initState();
+    _cardProvider = context.read<CardProvider>();
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
     _checkSettingsAndAuthenticate();
   }
 
   Future<void> _checkSettingsAndAuthenticate() async {
     final settingsProvider = context.read<SettingsProvider>();
-    if (!settingsProvider.requireBiometrics) {
-      if (mounted) {
-        setState(() {
-          _isAuthenticated = true;
-          _isAuthenticating = false;
-        });
-      }
-      return;
+
+    // Step 1: Check NFC First
+    if (settingsProvider.requireNfc) {
+      _authenticateNfc(
+        onSuccess: () async {
+          // If NFC passes, check Biometrics
+          if (settingsProvider.requireBiometrics) {
+            final bioSuccess = await _authenticateBiometrics();
+            if (bioSuccess && mounted) {
+              setState(() => _isAuthenticated = true);
+            }
+          } else {
+            if (mounted) setState(() => _isAuthenticated = true);
+          }
+        },
+      );
+      return; // NFC handles the rest of the flow asynchronously
     }
-    await _authenticate();
+
+    // Step 2: If NFC not required, check Biometrics directly
+    if (settingsProvider.requireBiometrics) {
+      final bioSuccess = await _authenticateBiometrics();
+      if (!bioSuccess) return; // Error is handled in the method
+    }
+
+    // Step 3: No requirements or all succeeded
+    if (mounted) {
+      setState(() {
+        _isAuthenticated = true;
+      });
+    }
   }
 
-  Future<void> _authenticate() async {
+  Future<bool> _authenticateBiometrics() async {
     setState(() {
-      _isAuthenticating = true;
+      _isBiometricAuthenticating = true;
       _authError = null;
     });
 
@@ -55,22 +92,70 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
 
       if (mounted) {
         setState(() {
-          _isAuthenticated = success;
-          _isAuthenticating = false;
+          _isBiometricAuthenticating = false;
           if (!success) {
-            _authError = "Doğrulama başarısız oldu veya iptal edildi.";
+            _authError =
+                "Biyometrik doğrulama başarısız oldu veya iptal edildi.";
           }
         });
       }
+      return success;
     } catch (e) {
       if (mounted) {
         setState(() {
-          _isAuthenticating = false;
-          _isAuthenticated = false;
+          _isBiometricAuthenticating = false;
           _authError = "Biyometrik doğrulama hatası.";
         });
       }
+      return false;
     }
+  }
+
+  void _authenticateNfc({required VoidCallback onSuccess}) {
+    setState(() {
+      _isNfcAuthenticating = true;
+      _authError = null;
+    });
+    _pulseController.repeat(reverse: true);
+
+    _cardProvider.startNfcSession(
+      onDiscovered: (id) {
+        if (!mounted) return;
+
+        if (id == widget.cardId) {
+          setState(() {
+            _isNfcAuthenticating = false;
+          });
+          _pulseController.stop();
+          onSuccess();
+        } else {
+          setState(() {
+            _authError =
+                "Hatalı kart! Lütfen bu şifrenin kayıtlı olduğu fiziksel kartı okutun.";
+            _isNfcAuthenticating = false;
+          });
+          _pulseController.stop();
+        }
+      },
+      onError: (error) {
+        if (!mounted) return;
+        setState(() {
+          _authError = "NFC Hatası: $error";
+          _isNfcAuthenticating = false;
+        });
+        _pulseController.stop();
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    // Optionally stop session if user backs out during verification
+    if (_isNfcAuthenticating) {
+      _cardProvider.stopNfcSession();
+    }
+    super.dispose();
   }
 
   @override
@@ -106,10 +191,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
               ),
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 24,
-                ),
+                width: double.infinity,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: card.colorCode != null
@@ -137,132 +219,202 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
                     ),
                   ],
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        _isAuthenticated ? Icons.lock_open : Icons.lock_outline,
-                        size: 32,
-                        color: Colors.white,
-                      ),
+                child: AnimatedCrossFade(
+                  duration: const Duration(milliseconds: 300),
+                  firstCurve: Curves.easeOutCubic,
+                  secondCurve: Curves.easeOutCubic,
+                  sizeCurve: Curves.easeOutCubic,
+                  crossFadeState: _isNfcAuthenticating
+                      ? CrossFadeState.showFirst
+                      : CrossFadeState.showSecond,
+                  firstChild: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 48,
+                      horizontal: 24,
                     ),
-                    const SizedBox(width: 20),
-                    Expanded(
+                    child: Center(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            _isAuthenticated
-                                ? 'Gizli Şifreniz'
-                                : 'Şifre Kilitli',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                          ScaleTransition(
+                            scale: _pulseAnimation,
+                            child: Shimmer.fromColors(
+                              baseColor: Colors.white.withValues(alpha: 0.8),
+                              highlightColor: Colors.white,
+                              child: const Icon(
+                                Icons.nfc,
+                                size: 120,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-
-                          if (_isAuthenticating)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Shimmer.fromColors(
-                                baseColor: Colors.white.withValues(alpha: 0.5),
-                                highlightColor: Colors.white,
-                                child: Container(
-                                  height: 28,
-                                  width: 120,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            )
-                          else if (_authError != null)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _authError!,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                InkWell(
-                                  onTap: _authenticate,
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.refresh,
-                                        size: 16,
-                                        color: Colors.white,
-                                      ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'Tekrar Dene',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            )
-                          else if (_isAuthenticated)
-                            SizedBox(
-                              width: double.infinity,
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  card.password,
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 2,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                          const SizedBox(height: 16),
+                          Shimmer.fromColors(
+                            baseColor: Colors.white.withValues(alpha: 0.9),
+                            highlightColor: Colors.white,
+                            child: const Text(
+                              'Kartınızı Yaklaştırın',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                                color: Colors.white,
                               ),
                             ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Şifrenizi görmek için fiziksel kartınızı\ntelefonun arkasına dokundurun.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withValues(alpha: 0.8),
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    if (_isAuthenticated)
-                      IconButton(
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: card.password));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Şifre kopyalandı!',
+                  ),
+                  secondChild: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 24,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            _isAuthenticated
+                                ? Icons.lock_open
+                                : Icons.lock_outline,
+                            size: 32,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _isAuthenticated
+                                    ? 'Gizli Şifreniz'
+                                    : 'Şifre Kilitli',
                                 style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimary,
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.secondary,
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.copy),
-                        color: Colors.white,
-                        tooltip: 'Kopyala',
-                      ),
-                  ],
+                              if (_isBiometricAuthenticating)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Shimmer.fromColors(
+                                    baseColor: Colors.white.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                    highlightColor: Colors.white,
+                                    child: Container(
+                                      height: 28,
+                                      width: 120,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              else if (_authError != null)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _authError!,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    InkWell(
+                                      onTap: _checkSettingsAndAuthenticate,
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.refresh,
+                                            size: 16,
+                                            color: Colors.white,
+                                          ),
+                                          SizedBox(width: 4),
+                                          Text(
+                                            'Tekrar Dene',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              else if (_isAuthenticated)
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      card.password,
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 2,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        if (_isAuthenticated)
+                          IconButton(
+                            onPressed: () {
+                              Clipboard.setData(
+                                ClipboardData(text: card.password),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Şifre kopyalandı!',
+                                    style: TextStyle(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.secondary,
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.copy),
+                            color: Colors.white,
+                            tooltip: 'Kopyala',
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
