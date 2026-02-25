@@ -17,6 +17,7 @@ dependencies:
   provider: ^6.1.5+1
   pull_down_button: ^0.10.2
   shared_preferences: ^2.5.4
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import '../providers/card_provider.dart';
 import '../services/biometric_service.dart';
 import '../providers/settings_provider.dart';
+import '../widgets/nfc_card_widget.dart';
 
 class PasswordDetailScreen extends StatefulWidget {
   final String cardId;
@@ -85,113 +87,184 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(card.name)),
-      body: Center(
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Hero(
+                tag: 'card_${card.id}',
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: NfcCardWidget(
+                    card: card,
+                    isCardView: true,
+                    isDark: context.read<SettingsProvider>().isDarkMode,
+                    showActions: false,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.all(40),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(40),
+                  gradient: LinearGradient(
+                    colors: card.colorCode != null
+                        ? [
+                            Color(card.colorCode!),
+                            Color(card.colorCode!).withValues(alpha: 0.6),
+                          ]
+                        : [
+                            Theme.of(context).colorScheme.primary,
+                            Theme.of(context).colorScheme.secondary,
+                          ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
                       color:
                           (card.colorCode != null
                                   ? Color(card.colorCode!)
                                   : Theme.of(context).colorScheme.primary)
-                              .withOpacity(0.3),
-                      blurRadius: 40,
-                      spreadRadius: -10,
+                              .withValues(alpha: 0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
-                child: Column(
+                child: Row(
                   children: [
-                    Icon(
-                      _isAuthenticated ? Icons.lock_open : Icons.lock_outline,
-                      size: 80,
-                      color: _isAuthenticated
-                          ? Colors.greenAccent
-                          : (card.colorCode != null
-                                ? Color(card.colorCode!)
-                                : Theme.of(context).colorScheme.primary),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      _isAuthenticated ? 'Gizli Şifreniz' : 'Şifre Kilitli',
-                      style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withOpacity(0.7),
-                        fontSize: 16,
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _isAuthenticated ? Icons.lock_open : Icons.lock_outline,
+                        size: 32,
+                        color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    if (_isAuthenticating)
-                      const CircularProgressIndicator()
-                    else if (_authError != null)
-                      Column(
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _authError!,
-                            textAlign: TextAlign.center,
+                            _isAuthenticated
+                                ? 'Gizli Şifreniz'
+                                : 'Şifre Kilitli',
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: _authenticate,
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Tekrar Dene'),
-                          ),
+
+                          if (_isAuthenticating)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Shimmer.fromColors(
+                                baseColor: Colors.white.withValues(alpha: 0.5),
+                                highlightColor: Colors.white,
+                                child: Container(
+                                  height: 28,
+                                  width: 120,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            )
+                          else if (_authError != null)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _authError!,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                InkWell(
+                                  onTap: _authenticate,
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.refresh,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Tekrar Dene',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+                          else if (_isAuthenticated)
+                            SizedBox(
+                              width: double.infinity,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  card.password,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 2,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
                         ],
-                      )
-                    else if (_isAuthenticated)
-                      SelectableText(
-                        card.password,
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 3,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                      ),
+                    ),
+                    if (_isAuthenticated)
+                      IconButton(
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: card.password));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Şifre kopyalandı!',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
+                                ),
+                              ),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.secondary,
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.copy),
+                        color: Colors.white,
+                        tooltip: 'Kopyala',
                       ),
                   ],
                 ),
               ),
-              const SizedBox(height: 64),
-              if (_isAuthenticated)
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: card.password));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Şifre kopyalandı!',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                        ),
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.secondary,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.copy),
-                  label: const Text('Kopyala'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 64),
-                    textStyle: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () => Navigator.pop(context),
