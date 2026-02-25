@@ -60,7 +60,7 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: backgroundColorDark,
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
         titleTextStyle: GoogleFonts.outfit(
           fontSize: 24,
           fontWeight: FontWeight.w600,

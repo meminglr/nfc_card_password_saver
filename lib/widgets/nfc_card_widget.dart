@@ -124,6 +124,9 @@ class NfcCardWidget extends StatelessWidget {
         ),
         trailing: showActions && provider != null
             ? PullDownButton(
+                routeTheme: PullDownMenuRouteTheme(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                ),
                 itemBuilder: (context) => [
                   PullDownMenuItem(
                     title: 'Düzenle',
