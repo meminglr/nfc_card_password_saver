@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static const Color primaryColor = Color(0xFF6C63FF);
@@ -13,6 +12,7 @@ class AppTheme {
 
   static ThemeData get darkTheme {
     return ThemeData(
+      fontFamily: 'Outfit',
       useMaterial3: true,
       brightness: Brightness.dark,
       primaryColor: primaryColor,
@@ -25,25 +25,25 @@ class AppTheme {
         onPrimary: Colors.white,
         onSurface: Colors.white,
       ),
-      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme)
+      textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Outfit')
           .copyWith(
-            displayLarge: GoogleFonts.outfit(
+            displayLarge: TextStyle(fontFamily: 'Outfit', 
               fontSize: 32,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
-            titleLarge: GoogleFonts.outfit(
+            titleLarge: TextStyle(fontFamily: 'Outfit', 
               fontSize: 22,
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
-            titleMedium: GoogleFonts.outfit(
+            titleMedium: TextStyle(fontFamily: 'Outfit', 
               fontSize: 18,
               fontWeight: FontWeight.w500,
               color: Colors.white,
             ),
-            bodyLarge: GoogleFonts.outfit(fontSize: 16, color: Colors.white70),
-            bodyMedium: GoogleFonts.outfit(fontSize: 14, color: Colors.white60),
+            bodyLarge: TextStyle(fontFamily: 'Outfit', fontSize: 16, color: Colors.white70),
+            bodyMedium: TextStyle(fontFamily: 'Outfit', fontSize: 14, color: Colors.white60),
           ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -61,7 +61,7 @@ class AppTheme {
         backgroundColor: backgroundColorDark,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.outfit(
+        titleTextStyle: TextStyle(fontFamily: 'Outfit', 
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: Colors.white,
@@ -115,6 +115,7 @@ class AppTheme {
 
   static ThemeData get lightTheme {
     return ThemeData(
+      fontFamily: 'Outfit',
       useMaterial3: true,
       brightness: Brightness.light,
       primaryColor: primaryColor,
@@ -127,25 +128,25 @@ class AppTheme {
         onPrimary: Colors.white,
         onSurface: Colors.black87,
       ),
-      textTheme: GoogleFonts.outfitTextTheme(ThemeData.light().textTheme)
+      textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Outfit')
           .copyWith(
-            displayLarge: GoogleFonts.outfit(
+            displayLarge: TextStyle(fontFamily: 'Outfit', 
               fontSize: 32,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
             ),
-            titleLarge: GoogleFonts.outfit(
+            titleLarge: TextStyle(fontFamily: 'Outfit', 
               fontSize: 22,
               fontWeight: FontWeight.w600,
               color: Colors.black87,
             ),
-            titleMedium: GoogleFonts.outfit(
+            titleMedium: TextStyle(fontFamily: 'Outfit', 
               fontSize: 18,
               fontWeight: FontWeight.w500,
               color: Colors.black87,
             ),
-            bodyLarge: GoogleFonts.outfit(fontSize: 16, color: Colors.black87),
-            bodyMedium: GoogleFonts.outfit(
+            bodyLarge: TextStyle(fontFamily: 'Outfit', fontSize: 16, color: Colors.black87),
+            bodyMedium: TextStyle(fontFamily: 'Outfit', 
               fontSize: 14,
               color: Colors.black87.withOpacity(0.7),
             ),
@@ -166,7 +167,7 @@ class AppTheme {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.outfit(
+        titleTextStyle: TextStyle(fontFamily: 'Outfit', 
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: Colors.black87,
