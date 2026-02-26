@@ -243,6 +243,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: TextField(
                         controller: _searchController,
+                        onTapOutside: (event) =>
+                            FocusManager.instance.primaryFocus?.unfocus(),
                         onChanged: (value) => provider.setSearchQuery(value),
                         decoration: InputDecoration(
                           hintText: 'Kart ara...',
