@@ -17,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
+  int? _draggingIndex;
 
   @override
   void dispose() {
@@ -328,35 +329,65 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? ReorderableListView.builder(
                         padding: const EdgeInsets.all(16),
                         itemCount: displayCards.length,
+                        onReorderStart: (index) {
+                          setState(() => _draggingIndex = index);
+                        },
+                        onReorderEnd: (index) {
+                          setState(() => _draggingIndex = null);
+                        },
                         onReorder: (oldIndex, newIndex) {
                           provider.reorderCards(oldIndex, newIndex);
                         },
+                        proxyDecorator:
+                            (
+                              Widget child,
+                              int index,
+                              Animation<double> animation,
+                            ) {
+                              return Material(
+                                type: MaterialType.transparency,
+                                child: child,
+                              );
+                            },
                         itemBuilder: (context, index) {
                           final card = displayCards[index];
-                          return Padding(
+
+                          // Scaling logic
+                          final isDragging = _draggingIndex != null;
+                          final isThisCardDragging = _draggingIndex == index;
+                          final scale = (isDragging && !isThisCardDragging)
+                              ? 0.95
+                              : 1.0;
+
+                          return AnimatedScale(
                             key: ValueKey(card.id),
-                            padding: EdgeInsets.only(
-                              bottom: isCardView ? 24.0 : 16.0,
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        PasswordDetailScreen(cardId: card.id),
-                                  ),
-                                );
-                              },
-                              child: Hero(
-                                tag: 'card_${card.id}',
-                                child: Material(
-                                  type: MaterialType.transparency,
-                                  child: NfcCardWidget(
-                                    card: card,
-                                    isCardView: isCardView,
-                                    isDark: isDark,
-                                    provider: provider,
+                            scale: scale,
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                bottom: isCardView ? 24.0 : 16.0,
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          PasswordDetailScreen(cardId: card.id),
+                                    ),
+                                  );
+                                },
+                                child: Hero(
+                                  tag: 'card_${card.id}',
+                                  child: Material(
+                                    type: MaterialType.transparency,
+                                    child: NfcCardWidget(
+                                      card: card,
+                                      isCardView: isCardView,
+                                      isDark: isDark,
+                                      provider: provider,
+                                    ),
                                   ),
                                 ),
                               ),
