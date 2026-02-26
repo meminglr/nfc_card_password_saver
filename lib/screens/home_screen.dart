@@ -47,7 +47,7 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Consumer2<CardProvider, SettingsProvider>(
         builder: (context, provider, settings, child) {
-          final isDark = settings.isDarkMode;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
           final isCardView = settings.isCardViewEnabled;
           if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());

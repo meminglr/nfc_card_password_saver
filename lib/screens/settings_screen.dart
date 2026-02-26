@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_down_button/pull_down_button.dart';
 import '../providers/settings_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -46,9 +47,9 @@ class SettingsScreen extends StatelessWidget {
               ),
               value: provider.requireNfc,
               onChanged: (val) => provider.setRequireNfc(val),
-              activeThumbColor: Theme.of(context).colorScheme.secondary,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
             ),
-            const Divider(height: 32),
+            const Divider(height: 16),
             SwitchListTile(
               title: const Text(
                 'Biyometrik Doğrulama Zorunluluğu',
@@ -59,7 +60,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               value: provider.requireBiometrics,
               onChanged: (val) => provider.setRequireBiometrics(val),
-              activeThumbColor: Theme.of(context).colorScheme.secondary,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
             ),
           ],
         ),
@@ -68,16 +69,74 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildThemeSwitch(SettingsProvider provider, BuildContext context) {
+    String themeText;
+    IconData themeIcon;
+    switch (provider.themeMode) {
+      case ThemeMode.light:
+        themeText = 'Açık';
+        themeIcon = Icons.light_mode_outlined;
+        break;
+      case ThemeMode.dark:
+        themeText = 'Karanlık';
+        themeIcon = Icons.dark_mode_outlined;
+        break;
+      case ThemeMode.system:
+        themeText = 'Sisteme Göre';
+        themeIcon = Icons.brightness_auto_outlined;
+        break;
+    }
+
     return Card(
-      child: SwitchListTile(
+      child: ListTile(
         title: const Text(
-          'Karanlık Tema',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          'Tema Görünümü',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
         ),
-        subtitle: const Text('Uygulamanın genel görünüm arayüzünü değiştirir.'),
-        value: provider.isDarkMode,
-        onChanged: (val) => provider.setIsDarkMode(val),
-        activeThumbColor: Theme.of(context).colorScheme.secondary,
+        subtitle: const Text(
+          'Uygulamanın genel arayüz aydınlatmasını değiştirir.',
+          style: TextStyle(fontSize: 13),
+        ),
+        trailing: PullDownButton(
+          itemBuilder: (context) => [
+            PullDownMenuItem(
+              title: 'Açık',
+              onTap: () => provider.setThemeMode(ThemeMode.light),
+              icon: Icons.light_mode_outlined,
+            ),
+            PullDownMenuItem(
+              title: 'Karanlık',
+              onTap: () => provider.setThemeMode(ThemeMode.dark),
+              icon: Icons.dark_mode_outlined,
+            ),
+            PullDownMenuItem(
+              title: 'Sisteme Göre',
+              onTap: () => provider.setThemeMode(ThemeMode.system),
+              icon: Icons.brightness_auto_outlined,
+            ),
+          ],
+          buttonBuilder: (context, showMenu) => TextButton(
+            onPressed: showMenu,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(themeIcon, size: 18),
+                const SizedBox(width: 8),
+                Text(themeText),
+                const SizedBox(width: 4),
+                const Icon(Icons.keyboard_arrow_down, size: 18),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -89,7 +148,7 @@ class SettingsScreen extends StatelessWidget {
         child: Text(
           title.toUpperCase(),
           style: TextStyle(
-            color: Theme.of(context).colorScheme.secondary,
+            color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.2,
           ),

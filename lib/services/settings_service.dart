@@ -3,18 +3,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsService {
   static const String _keyRequireNfc = 'require_nfc';
   static const String _keyRequireBiometrics = 'require_biometrics';
-  static const String _keyIsDarkMode = 'is_dark_mode';
+  static const String _keyThemeMode = 'theme_mode';
 
   static const String _keyIsCardViewEnabled = 'is_card_view_enabled';
 
-  Future<bool> getIsDarkMode() async {
+  Future<String> getThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_keyIsDarkMode) ?? true;
+    // Default to 'system'
+    return prefs.getString(_keyThemeMode) ?? 'system';
   }
 
-  Future<void> setIsDarkMode(bool value) async {
+  Future<void> setThemeMode(String value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_keyIsDarkMode, value);
+    await prefs.setString(_keyThemeMode, value);
   }
 
   Future<bool> getIsCardViewEnabled() async {

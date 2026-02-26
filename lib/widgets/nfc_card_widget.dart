@@ -252,8 +252,6 @@ class NfcCardWidget extends StatelessWidget {
                             color: Colors.white.withOpacity(0.5),
                           ),
                           onPressed: showMenu,
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
                         ),
                       ),
                   ],

@@ -184,7 +184,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen>
                   child: NfcCardWidget(
                     card: card,
                     isCardView: true,
-                    isDark: context.read<SettingsProvider>().isDarkMode,
+                    isDark: Theme.of(context).brightness == Brightness.dark,
                     showActions: true,
                     provider: provider,
                   ),

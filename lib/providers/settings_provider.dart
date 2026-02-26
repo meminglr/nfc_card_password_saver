@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../services/settings_service.dart';
 
 class SettingsProvider with ChangeNotifier {
@@ -6,7 +6,7 @@ class SettingsProvider with ChangeNotifier {
 
   bool _requireNfc = true;
   bool _requireBiometrics = true;
-  bool _isDarkMode = true;
+  ThemeMode _themeMode = ThemeMode.system;
   bool _isCardViewEnabled = false;
   bool _isLoading = true;
 
@@ -16,7 +16,7 @@ class SettingsProvider with ChangeNotifier {
 
   bool get requireNfc => _requireNfc;
   bool get requireBiometrics => _requireBiometrics;
-  bool get isDarkMode => _isDarkMode;
+  ThemeMode get themeMode => _themeMode;
   bool get isCardViewEnabled => _isCardViewEnabled;
   bool get isLoading => _isLoading;
 
@@ -26,7 +26,8 @@ class SettingsProvider with ChangeNotifier {
 
     _requireNfc = await _settingsService.getRequireNfc();
     _requireBiometrics = await _settingsService.getRequireBiometrics();
-    _isDarkMode = await _settingsService.getIsDarkMode();
+    final themeString = await _settingsService.getThemeMode();
+    _themeMode = _parseThemeMode(themeString);
     _isCardViewEnabled = await _settingsService.getIsCardViewEnabled();
 
     _isLoading = false;
@@ -47,11 +48,33 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setIsDarkMode(bool value) async {
-    if (_isDarkMode == value) return;
-    _isDarkMode = value;
-    await _settingsService.setIsDarkMode(value);
+  Future<void> setThemeMode(ThemeMode value) async {
+    if (_themeMode == value) return;
+    _themeMode = value;
+    await _settingsService.setThemeMode(_themeModeToString(value));
     notifyListeners();
+  }
+
+  ThemeMode _parseThemeMode(String value) {
+    switch (value) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.system;
+    }
+  }
+
+  String _themeModeToString(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.light:
+        return 'light';
+      case ThemeMode.dark:
+        return 'dark';
+      default:
+        return 'system';
+    }
   }
 
   Future<void> setIsCardViewEnabled(bool value) async {

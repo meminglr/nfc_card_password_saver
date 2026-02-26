@@ -245,14 +245,6 @@ class _SavePasswordScreenState extends State<SavePasswordScreen> {
                                 : Colors.transparent,
                             width: 3,
                           ),
-                          boxShadow: [
-                            if (isSelected)
-                              BoxShadow(
-                                color: color.withOpacity(0.4),
-                                blurRadius: 8,
-                                spreadRadius: 2,
-                              ),
-                          ],
                         ),
                         child: isSelected
                             ? const Icon(Icons.check, color: Colors.white)
