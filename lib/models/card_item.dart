@@ -4,6 +4,7 @@ class CardItem {
   final String password;
   final String? description;
   final int? colorCode;
+  final int orderIndex; // Used for custom sorting
 
   CardItem({
     required this.id,
@@ -11,6 +12,7 @@ class CardItem {
     required this.password,
     this.description,
     this.colorCode,
+    this.orderIndex = 0,
   });
 
   Map<String, dynamic> toJson() => {
@@ -19,6 +21,7 @@ class CardItem {
     'password': password,
     'description': description,
     'colorCode': colorCode,
+    'orderIndex': orderIndex,
   };
 
   factory CardItem.fromJson(Map<String, dynamic> json) => CardItem(
@@ -27,5 +30,6 @@ class CardItem {
     password: json['password'],
     description: json['description'],
     colorCode: json['colorCode'],
+    orderIndex: json['orderIndex'] ?? 0, // Fallback to 0 for old cards
   );
 }
