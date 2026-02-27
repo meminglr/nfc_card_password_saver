@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_down_button/pull_down_button.dart';
 import '../providers/settings_provider.dart';
+import '../services/biometric_service.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -34,6 +35,30 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Card _buildAuthentication(SettingsProvider provider, BuildContext context) {
+    final biometricService = BiometricService();
+
+    Future<void> handleToggle(
+      bool newValue,
+      Function(bool) updateSettings,
+    ) async {
+      // Prompt for biometrics/device pin before allowing the security toggle to change
+      final authenticated = await biometricService.authenticate(
+        'Güvenlik ayarlarını değiştirmek için doğrulama yapın',
+      );
+
+      if (authenticated) {
+        updateSettings(newValue);
+      } else {
+        // Show an error snackbar if authentication fails
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Kimlik doğrulama başarısız oldu.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -48,7 +73,7 @@ class SettingsScreen extends StatelessWidget {
                 'Kart şifrelerini görebilmek için fiziksel NFC kartını telefona okutmanız gerekir.',
               ),
               value: provider.requireNfc,
-              onChanged: (val) => provider.setRequireNfc(val),
+              onChanged: (val) => handleToggle(val, provider.setRequireNfc),
               activeThumbColor: Theme.of(context).colorScheme.primary,
             ),
             const Divider(height: 16),
@@ -61,7 +86,8 @@ class SettingsScreen extends StatelessWidget {
                 'Şifreyi ekranda görebilmek için Face ID, Touch ID veya cihaz şifresi gerekir.',
               ),
               value: provider.requireBiometrics,
-              onChanged: (val) => provider.setRequireBiometrics(val),
+              onChanged: (val) =>
+                  handleToggle(val, provider.setRequireBiometrics),
               activeThumbColor: Theme.of(context).colorScheme.primary,
             ),
           ],
