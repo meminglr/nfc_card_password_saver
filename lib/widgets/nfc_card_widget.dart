@@ -43,8 +43,8 @@ class NfcCardWidget extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
-              isCardView ? (isDark ? 0.5 : 0.2) : (isDark ? 0.3 : 0.1),
+            color: Colors.black.withValues(
+              alpha: isCardView ? (isDark ? 0.5 : 0.2) : (isDark ? 0.3 : 0.1),
             ),
             blurRadius: isCardView ? 12 : 6,
             offset: Offset(0, isCardView ? 8 : 4),
@@ -98,7 +98,7 @@ class NfcCardWidget extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: Icon(
           Icons.credit_card,
-          color: Colors.white.withOpacity(0.8),
+          color: Colors.white.withValues(alpha: 0.8),
           size: 32,
         ),
         title: Text(
@@ -115,7 +115,7 @@ class NfcCardWidget extends StatelessWidget {
           child: Text(
             card.description ?? 'Açıklama yok',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontStyle: card.description == null
                   ? FontStyle.italic
                   : FontStyle.normal,
@@ -152,7 +152,7 @@ class NfcCardWidget extends StatelessWidget {
                 buttonBuilder: (context, showMenu) => IconButton(
                   icon: Icon(
                     Icons.more_vert,
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                   ),
                   onPressed: showMenu,
                 ),
@@ -193,7 +193,7 @@ class NfcCardWidget extends StatelessWidget {
                 Text(
                   card.description?.toUpperCase() ?? 'AÇIKLAMA YOK',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                     fontSize: 16,
                     letterSpacing: 2,
                     fontStyle: card.description == null
@@ -249,7 +249,7 @@ class NfcCardWidget extends StatelessWidget {
                         buttonBuilder: (context, showMenu) => IconButton(
                           icon: Icon(
                             Icons.more_vert,
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha: 0.5),
                           ),
                           onPressed: showMenu,
                         ),

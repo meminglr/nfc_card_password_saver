@@ -233,177 +233,182 @@ class _HomeScreenState extends State<HomeScreen> {
           final canReorder =
               provider.searchQuery.isEmpty && provider.filterColorCode == null;
 
-          return Column(
-            children: [
-              // Search and Filter Bar
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        onTapOutside: (event) =>
-                            FocusManager.instance.primaryFocus?.unfocus(),
-                        onChanged: (value) => provider.setSearchQuery(value),
-                        decoration: InputDecoration(
-                          hintText: 'Kart ara...',
-                          prefixIcon: const Icon(Icons.search),
-                          suffixIcon: _searchController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    provider.setSearchQuery('');
-                                  },
-                                )
-                              : null,
-                          filled: true,
-                          fillColor: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest
-                              .withValues(alpha: 0.5),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: provider.filterColorCode != null
-                            ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest
-                                  .withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.tune,
-                          color: provider.filterColorCode != null
-                              ? Theme.of(context).colorScheme.onPrimaryContainer
-                              : Theme.of(context).iconTheme.color,
-                        ),
-                        onPressed: () =>
-                            _showSortFilterBottomSheet(context, provider),
-                        tooltip: 'Sırala ve Filtrele',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: provider.cards.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.nfc,
-                              size: 80,
+          return CustomScrollView(
+            slivers: [
+              // Search and Filter Bar as a floating SliverAppBar
+              SliverAppBar(
+                floating: true,
+                snap: true,
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                toolbarHeight:
+                    80, // Approximate height of the search bar padding
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  blurRadius: 7,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                               color: Theme.of(
                                 context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.24),
+                              ).colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Henüz kayıtlı kartınız yok.\nYeni bir kart eklemek için tarama yapın.',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                          ],
-                        ),
-                      )
-                    : displayCards.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Arama veya filtreleme ile eşleşen kart bulunamadı.',
-                        ),
-                      )
-                    : canReorder
-                    ? ReorderableListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: displayCards.length,
-                        onReorderStart: (index) {
-                          setState(() => _draggingIndex = index);
-                        },
-                        onReorderEnd: (index) {
-                          setState(() => _draggingIndex = null);
-                        },
-                        onReorder: (oldIndex, newIndex) {
-                          provider.reorderCards(oldIndex, newIndex);
-                        },
-                        proxyDecorator:
-                            (
-                              Widget child,
-                              int index,
-                              Animation<double> animation,
-                            ) {
-                              return Material(
-                                type: MaterialType.transparency,
-                                child: child,
-                              );
-                            },
-                        itemBuilder: (context, index) {
-                          final card = displayCards[index];
 
-                          // Scaling logic
-                          final isDragging = _draggingIndex != null;
-                          final isThisCardDragging = _draggingIndex == index;
-                          final scale = (isDragging && !isThisCardDragging)
-                              ? 0.95
-                              : 1.0;
-
-                          return AnimatedScale(
-                            key: ValueKey(card.id),
-                            scale: scale,
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeInOut,
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                bottom: isCardView ? 24.0 : 16.0,
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          PasswordDetailScreen(cardId: card.id),
-                                    ),
-                                  );
-                                },
-                                child: Hero(
-                                  tag: 'card_${card.id}',
-                                  child: Material(
-                                    type: MaterialType.transparency,
-                                    child: NfcCardWidget(
-                                      card: card,
-                                      isCardView: isCardView,
-                                      isDark: isDark,
-                                      provider: provider,
-                                    ),
-                                  ),
+                            child: TextField(
+                              controller: _searchController,
+                              onTapOutside: (event) =>
+                                  FocusManager.instance.primaryFocus?.unfocus(),
+                              onChanged: (value) =>
+                                  provider.setSearchQuery(value),
+                              decoration: InputDecoration(
+                                hintText: 'Kart ara...',
+                                prefixIcon: const Icon(Icons.search),
+                                suffixIcon: _searchController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          provider.setSearchQuery('');
+                                        },
+                                      )
+                                    : null,
+                                filled: true,
+                                fillColor: Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainer,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
                                 ),
                               ),
                             ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Container(
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 7,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                            color: provider.filterColorCode != null
+                                ? Theme.of(context).colorScheme.primaryContainer
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.tune,
+                              color: provider.filterColorCode != null
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer
+                                  : Theme.of(context).iconTheme.color,
+                            ),
+                            onPressed: () =>
+                                _showSortFilterBottomSheet(context, provider),
+                            tooltip: 'Sırala ve Filtrele',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Empty State
+              if (provider.cards.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.nfc,
+                          size: 80,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.24),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Henüz kayıtlı kartınız yok.\nYeni bir kart eklemek için tarama yapın.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              // No Results State
+              else if (displayCards.isEmpty)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Text(
+                      'Arama veya filtreleme ile eşleşen kart bulunamadı.',
+                    ),
+                  ),
+                )
+              // Reorderable List
+              else if (canReorder)
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverReorderableList(
+                    itemCount: displayCards.length,
+                    onReorderStart: (index) {
+                      setState(() => _draggingIndex = index);
+                    },
+                    onReorderEnd: (index) {
+                      setState(() => _draggingIndex = null);
+                    },
+                    onReorder: (oldIndex, newIndex) {
+                      provider.reorderCards(oldIndex, newIndex);
+                    },
+                    proxyDecorator:
+                        (Widget child, int index, Animation<double> animation) {
+                          return Material(
+                            type: MaterialType.transparency,
+                            child: child,
                           );
                         },
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: displayCards.length,
-                        itemBuilder: (context, index) {
-                          final card = displayCards[index];
-                          return Padding(
-                            key: ValueKey(card.id),
+                    itemBuilder: (context, index) {
+                      final card = displayCards[index];
+
+                      // Scaling logic
+                      final isDragging = _draggingIndex != null;
+                      final isThisCardDragging = _draggingIndex == index;
+                      final scale = (isDragging && !isThisCardDragging)
+                          ? 0.95
+                          : 1.0;
+
+                      return ReorderableDelayedDragStartListener(
+                        key: ValueKey(card.id),
+                        index: index,
+                        child: AnimatedScale(
+                          scale: scale,
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                          child: Padding(
                             padding: EdgeInsets.only(
                               bottom: isCardView ? 24.0 : 16.0,
                             ),
@@ -430,10 +435,51 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                          );
-                        },
-                      ),
-              ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                )
+              // Standard List
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final card = displayCards[index];
+                      return Padding(
+                        key: ValueKey(card.id),
+                        padding: EdgeInsets.only(
+                          bottom: isCardView ? 24.0 : 16.0,
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    PasswordDetailScreen(cardId: card.id),
+                              ),
+                            );
+                          },
+                          child: Hero(
+                            tag: 'card_${card.id}',
+                            child: Material(
+                              type: MaterialType.transparency,
+                              child: NfcCardWidget(
+                                card: card,
+                                isCardView: isCardView,
+                                isDark: isDark,
+                                provider: provider,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }, childCount: displayCards.length),
+                  ),
+                ),
             ],
           );
         },
