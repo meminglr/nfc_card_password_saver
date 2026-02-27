@@ -19,10 +19,12 @@ class SettingsScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              _buildSectionHeader(context, "Kimlik Doğrulama"),
-              _buildAuthentication(provider, context),
               _buildSectionHeader(context, "Görünüm"),
               _buildThemeSwitch(provider, context),
+              const SizedBox(height: 16),
+              _buildSectionHeader(context, "Kimlik Doğrulama"),
+              _buildAuthentication(provider, context),
+
               _buildInfoFooter(context),
             ],
           );
@@ -88,15 +90,15 @@ class SettingsScreen extends StatelessWidget {
 
     return Card(
       child: ListTile(
+        leading: Icon(Icons.palette_outlined),
         title: const Text(
           'Tema Görünümü',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
         ),
-        subtitle: const Text(
-          'Uygulamanın genel arayüz aydınlatmasını değiştirir.',
-          style: TextStyle(fontSize: 13),
-        ),
         trailing: PullDownButton(
+          routeTheme: PullDownMenuRouteTheme(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+          ),
           itemBuilder: (context) => [
             PullDownMenuItem(
               title: 'Açık',
@@ -143,15 +145,13 @@ class SettingsScreen extends StatelessWidget {
 
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 5, top: 5),
-      child: Center(
-        child: Text(
-          title.toUpperCase(),
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 5),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
         ),
       ),
     );

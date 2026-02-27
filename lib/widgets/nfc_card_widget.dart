@@ -32,7 +32,13 @@ class NfcCardWidget extends StatelessWidget {
           colors: card.colorCode != null
               ? [
                   Color(card.colorCode!),
-                  Color(card.colorCode!).withValues(alpha: 0.6),
+                  Color.lerp(
+                    Color(card.colorCode!),
+                    isDark
+                        ? Colors.black
+                        : Theme.of(context).colorScheme.primary,
+                    0.4,
+                  )!,
                 ]
               : [
                   Theme.of(context).colorScheme.primary,

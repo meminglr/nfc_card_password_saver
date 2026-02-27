@@ -312,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 : Theme.of(
                                     context,
                                   ).colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: IconButton(
                             icon: Icon(

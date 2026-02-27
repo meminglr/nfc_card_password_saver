@@ -198,7 +198,13 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen>
                     colors: card.colorCode != null
                         ? [
                             Color(card.colorCode!),
-                            Color(card.colorCode!).withValues(alpha: 0.6),
+                            Color.lerp(
+                              Color(card.colorCode!),
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.black
+                                  : Theme.of(context).colorScheme.primary,
+                              0.4,
+                            )!,
                           ]
                         : [
                             Theme.of(context).colorScheme.primary,
@@ -210,11 +216,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen>
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color:
-                          (card.colorCode != null
-                                  ? Color(card.colorCode!)
-                                  : Theme.of(context).colorScheme.primary)
-                              .withValues(alpha: 0.3),
+                      color: Colors.black26,
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                     ),
