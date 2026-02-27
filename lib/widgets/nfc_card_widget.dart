@@ -287,7 +287,7 @@ class NfcCardWidget extends StatelessWidget {
   ) {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AlertDialog.adaptive(
         backgroundColor: Theme.of(context).colorScheme.surface,
         title: const Text('Silmek istediğinize emin misiniz?'),
         content: const Text('Bu işlem geri alınamaz.'),

@@ -433,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       final isDragging = _draggingIndex != null;
                       final isThisCardDragging = _draggingIndex == index;
                       final scale = (isDragging && !isThisCardDragging)
-                          ? 0.95
+                          ? 0.90
                           : 1.0;
 
                       return ReorderableDelayedDragStartListener(
