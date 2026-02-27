@@ -11,6 +11,7 @@ class NfcCardWidget extends StatelessWidget {
   final bool isDark;
   final bool showActions;
   final CardProvider? provider;
+  final VoidCallback? onEditRequested;
 
   const NfcCardWidget({
     super.key,
@@ -19,6 +20,7 @@ class NfcCardWidget extends StatelessWidget {
     required this.isDark,
     this.showActions = true,
     this.provider,
+    this.onEditRequested,
   });
 
   @override
@@ -137,13 +139,17 @@ class NfcCardWidget extends StatelessWidget {
                   PullDownMenuItem(
                     title: 'Düzenle',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              SavePasswordScreen(existingCard: card),
-                        ),
-                      );
+                      if (onEditRequested != null) {
+                        onEditRequested!();
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                SavePasswordScreen(existingCard: card),
+                          ),
+                        );
+                      }
                     },
                     icon: Icons.edit_outlined,
                   ),
@@ -234,13 +240,17 @@ class NfcCardWidget extends StatelessWidget {
                           PullDownMenuItem(
                             title: 'Düzenle',
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      SavePasswordScreen(existingCard: card),
-                                ),
-                              );
+                              if (onEditRequested != null) {
+                                onEditRequested!();
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        SavePasswordScreen(existingCard: card),
+                                  ),
+                                );
+                              }
                             },
                             icon: Icons.edit_outlined,
                           ),

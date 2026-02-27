@@ -3,10 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../providers/card_provider.dart';
 import '../providers/settings_provider.dart';
+import '../models/card_item.dart';
 import 'read_nfc_screen.dart';
 import 'password_detail_screen.dart';
 import 'settings_screen.dart';
 import '../widgets/nfc_card_widget.dart';
+import '../services/biometric_service.dart';
+import 'save_password_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,6 +26,38 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleEditRequested(BuildContext context, CardItem card) async {
+    final settings = context.read<SettingsProvider>();
+
+    // If biometrics are required, verify before allowing edit from the home list
+    // (NFC is meant for viewing passwords, but Biometrics secure general access like editing)
+    if (settings.requireBiometrics) {
+      final biometricService = BiometricService();
+      final success = await biometricService.authenticate(
+        "Kartı düzenlemek için doğrulama yapın",
+      );
+
+      if (!success && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Kimlik doğrulama başarısız oldu.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
+
+    if (context.mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SavePasswordScreen(existingCard: card),
+        ),
+      );
+    }
   }
 
   void _showSortFilterBottomSheet(BuildContext context, CardProvider provider) {
@@ -431,6 +466,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     isCardView: isCardView,
                                     isDark: isDark,
                                     provider: provider,
+                                    onEditRequested: () =>
+                                        _handleEditRequested(context, card),
                                   ),
                                 ),
                               ),
@@ -472,6 +509,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 isCardView: isCardView,
                                 isDark: isDark,
                                 provider: provider,
+                                onEditRequested: () =>
+                                    _handleEditRequested(context, card),
                               ),
                             ),
                           ),

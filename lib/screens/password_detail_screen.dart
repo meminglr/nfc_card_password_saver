@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import '../models/card_item.dart';
 import '../providers/card_provider.dart';
 import '../services/biometric_service.dart';
 import '../providers/settings_provider.dart';
 import '../widgets/nfc_card_widget.dart';
+import 'save_password_screen.dart';
 
 class PasswordDetailScreen extends StatefulWidget {
   final String cardId;
@@ -158,6 +160,48 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen>
     super.dispose();
   }
 
+  Future<void> _handleEditRequested(BuildContext context, CardItem card) async {
+    final settings = context.read<SettingsProvider>();
+
+    // Check if security is needed, and if the user hasn't already authenticated for this card view
+    if (settings.requireBiometrics || settings.requireNfc) {
+      if (!_isAuthenticated) {
+        // Run the usual auth flow or prompt biometrics
+        if (settings.requireBiometrics) {
+          final success = await _authenticateBiometrics();
+          if (!success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Kimlik doğrulama başarısız oldu.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Düzenleme için kartı okutarak şifreyi görüntülemeniz gerekir.',
+              ),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          return;
+        }
+      }
+    }
+
+    if (context.mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SavePasswordScreen(existingCard: card),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CardProvider>();
@@ -187,6 +231,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen>
                     isDark: Theme.of(context).brightness == Brightness.dark,
                     showActions: true,
                     provider: provider,
+                    onEditRequested: () => _handleEditRequested(context, card),
                   ),
                 ),
               ),
