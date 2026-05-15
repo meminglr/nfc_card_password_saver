@@ -2,6 +2,10 @@
 
 Aygıtınızda kredi/banka kartı bilgilerinizi ve şifrelerinizi güvenle saklamanız ve yönetmeniz için geliştirilmiş, modern, güvenli ve özellik dolu bir Flutter uygulaması. Cihaz içi güvenlik mekanizmalarını kullanarak maksimum gizlilik ve koruma sağlar.
 
+<p align="center">
+  <img src="screenshoots/gif.gif" width="300" alt="Uygulama Demosu">
+</p>
+
 ## 📸 Ekran Görüntüleri
 
 | Ana Ekran | Görüntüleme ve Güvenlik | Ayarlar |
