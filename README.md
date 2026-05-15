@@ -2,17 +2,15 @@
 
 Aygıtınızda kredi/banka kartı bilgilerinizi ve şifrelerinizi güvenle saklamanız ve yönetmeniz için geliştirilmiş, modern, güvenli ve özellik dolu bir Flutter uygulaması. Cihaz içi güvenlik mekanizmalarını kullanarak maksimum gizlilik ve koruma sağlar.
 
-<p align="center">
-  <img src="screenshoots/gif.gif" width="300" alt="Uygulama Demosu">
-</p>
+
 
 ## 📸 Ekran Görüntüleri
 
-| Ana Ekran | Görüntüleme ve Güvenlik | Ayarlar |
-| :---: | :---: | :---: |
-| <img src="screenshoots/Screenshot_20260228-204244.png" width="250"> | <img src="screenshoots/Screenshot_20260228-204509.png" width="250"> | <img src="screenshoots/Screenshot_20260228-204544.png" width="250"> |
-| <img src="screenshoots/Screenshot_20260228-204253.png" width="250"> | <img src="screenshoots/Screenshot_20260228-204521.png" width="250"> | <img src="screenshoots/Screenshot_20260228-204552.png" width="250"> |
-| <img src="screenshoots/Screenshot_20260228-204437.png" width="250"> | <img src="screenshoots/Screenshot_20260228-204535.png" width="250"> | <img src="screenshoots/Screenshot_20260228-204639.png" width="250"> |
+| Uygulama Demosu | Ana Ekran | Görüntüleme ve Güvenlik | Ayarlar |
+| :---: | :---: | :---: | :---: |
+| <img src="screenshoots/gif.gif" width="210"> | <img src="screenshoots/Screenshot_20260228-204244.png" width="210"> | <img src="screenshoots/Screenshot_20260228-204509.png" width="210"> | <img src="screenshoots/Screenshot_20260228-204544.png" width="210"> |
+| <img src="screenshoots/Screenshot_20260228-204253.png" width="210"> | <img src="screenshoots/Screenshot_20260228-204521.png" width="210"> | <img src="screenshoots/Screenshot_20260228-204552.png" width="210"> | <img src="screenshoots/Screenshot_20260228-204437.png" width="210"> |
+| <img src="screenshoots/Screenshot_20260228-204535.png" width="210"> | <img src="screenshoots/Screenshot_20260228-204639.png" width="210"> | | |
 
 ## ✨ Özellikler
 
