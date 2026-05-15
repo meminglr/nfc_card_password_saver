@@ -6,11 +6,32 @@ Aygıtınızda kredi/banka kartı bilgilerinizi ve şifrelerinizi güvenle sakla
 
 ## 📸 Ekran Görüntüleri
 
-| Uygulama<br>Demosu | Ana<br>Ekran | Görüntüleme ve<br>Güvenlik | Ayarlar<br>Ekranı |
-| :---: | :---: | :---: | :---: |
-| <img src="screenshoots/gif.gif" width="200"> | <img src="screenshoots/Screenshot_20260228-204244.png" width="200"> | <img src="screenshoots/Screenshot_20260228-204509.png" width="200"> | <img src="screenshoots/Screenshot_20260228-204544.png" width="200"> |
-| <img src="screenshoots/Screenshot_20260228-204253.png" width="200"> | <img src="screenshoots/Screenshot_20260228-204521.png" width="200"> | <img src="screenshoots/Screenshot_20260228-204552.png" width="200"> | <img src="screenshoots/Screenshot_20260228-204437.png" width="200"> |
-| <img src="screenshoots/Screenshot_20260228-204535.png" width="200"> | <img src="screenshoots/Screenshot_20260228-204639.png" width="200"> | | |
+<table align="center">
+  <tr>
+    <th align="center">Uygulama Demosu</th>
+    <th align="center">Ana Ekran</th>
+    <th align="center">Güvenlik</th>
+    <th align="center">Ayarlar</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshoots/gif.gif" width="200"></td>
+    <td align="center"><img src="screenshoots/Screenshot_20260228-204244.png" width="200"></td>
+    <td align="center"><img src="screenshoots/Screenshot_20260228-204509.png" width="200"></td>
+    <td align="center"><img src="screenshoots/Screenshot_20260228-204544.png" width="200"></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshoots/Screenshot_20260228-204253.png" width="200"></td>
+    <td align="center"><img src="screenshoots/Screenshot_20260228-204521.png" width="200"></td>
+    <td align="center"><img src="screenshoots/Screenshot_20260228-204552.png" width="200"></td>
+    <td align="center"><img src="screenshoots/Screenshot_20260228-204437.png" width="200"></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshoots/Screenshot_20260228-204535.png" width="200"></td>
+    <td align="center"><img src="screenshoots/Screenshot_20260228-204639.png" width="200"></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
 
 ## ✨ Özellikler
 
